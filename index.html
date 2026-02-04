@@ -1473,13 +1473,13 @@
             .catch(err => console.error("モデルの読み込みに失敗:", err));
 
         // Webカメラを起動（640×480 固定）
-        navigator.mediaDevices.getUserMedia({
-            video: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT }
-        })
-        .then(stream => {
-            video.srcObject = stream;
-        })
-        .catch(err => console.error("カメラにアクセスできません:", err));
+        //navigator.mediaDevices.getUserMedia({
+        //    video: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT }
+        //})
+        //.then(stream => {
+        //    video.srcObject = stream;
+        //})
+        //.catch(err => console.error("カメラにアクセスできません:", err));
 
         function rgba_to_grayscale(rgba, nrows, ncols) {
             var gray = new Uint8Array(nrows * ncols);
@@ -1542,7 +1542,7 @@
         }
 
         video.addEventListener('loadeddata', () => {
-            detectFace();
+            //detectFace();
         });
 
 
