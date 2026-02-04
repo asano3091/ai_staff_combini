@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html>
+
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Dosis:700);
+    body {
+      font-family: "Dosis", Helvetica, Arial, sans-serif;
+      background: #333;
+      color: #34495e;
+      padding-top: 0px;
+      margin-top: 0px;
+      text-shadow: white 1px 1px 1px;
+      height: 120vh;
+    }
+    .value {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5em;
+      width: 100px;
+      height: 10px;
+      margin: 5px auto 30px auto;
+      letter-spacing: -.07em;
+      text-shadow: white 2px 2px 2px;
+    }
+    input[type="range"] {
+      display: block;
+      -webkit-appearance: none;
+      background-color: #bdc3c7;
+      width: 150px;
+      height: 5px;
+      border-radius: 5px;
+      margin: 0 auto;
+      outline: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      background-color: #e74c3c;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: pointer;
+      transition: .3s ease-in-out;
+    }​
+      input[type="range"]::-webkit-slider-thumb:hover {
+        background-color: white;
+        border: 2px solid #e74c3c;
+      }
+      input[type="range"]::-webkit-slider-thumb:active {
+        transform: scale(1.4);
+      }
+      input[type="range"].vertical {
+        width: 60px;
+        height: 5px;
+        transform: rotate(0.25turn);
+        margin: 35px 0;
+        display: inline-block;
+      }
+      .value2 {
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.5em;
+        width: 10px;
+        height: 0px;
+        margin: 0 0 0 0;
+        text-shadow: white 2px 2px 2px;
+        letter-spacing: -.07em;
+        display: inline-block;
+      }
+      input[type="button"] {
+        position:absolute;
+        right:20px;
+        top:60px;
+      	cursor:pointer;/*カーソルをポインターに*/
+      	-webkit-appearance: none;/*iOS Safariのデフォルトスタイルをクリア*/
+      	border-style:none;/*デフォルトのボーダークリア*/
+      	font-size:1em;
+      	font-weight:bold;
+      	color: #fff;
+      	margin:.5em .5em .5em 0;
+      	padding:.3em 5px .4em;
+      	background:#1e90ff;/*背景色を指定*/
+      	-webkit-border-radius: 5px;/*iOS Safari用のボックスの角丸の指定*/
+      	border-radius: 5px;/*ボックスの角丸の指定*/
+      	-webkit-box-shadow: 0 2px 2px 0 #666;/*iOS Safari用ボックスシャドウ*/
+      }
+      /*↓マウスオーバー時の変化。ここでは背景色だけ変更*/
+      input[type="button"]:hover {
+      	background-color: #1075ff;
+      }
+      #start {
+        right:40%;
+        top:150px;
+        font-size:4em;
+        padding:.2em 15px .3em;
+        margin:1.5em 1.5em 1.5em 0;
+        background:#ff3ea6;/*背景色を指定*/
+      	-webkit-border-radius: 25px;/*iOS Safari用のボックスの角丸の指定*/
+      	border-radius: 15px;/*ボックスの角丸の指定*/
+      	-webkit-box-shadow: 0 12px 12px 0 #666;/*iOS Safari用ボックスシャドウ*/
+      }
+      /*↓マウスオーバー時の変化。ここでは背景色だけ変更*/
+      #start:hover {
+      	background-color: #ff2e96;
+      }
+      #output{
+        position:absolute;
+        top:250px;
+        left:20px;
+      }
+
+              /* 通知のコンテナ */
+        .notification-container {
+            position: fixed;
+            top: 100px;
+            right: -300px; /* 初期状態は画面外 */
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        /* 通知メッセージ */
+        .notification {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            font-size: 16px;
+            transform: translateX(100%);
+            transition: transform 0.5s ease-out, opacity 0.5s ease-in;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ヘッダー部分（アイコンと名前） */
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .notification-header img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .notification-header span {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* 表示状態 */
+        .notification.show {
+            transform: translateX(-50px); /* 右端から50px離れる */
+            opacity: 1;
+        }
+
+        /* 消える時のアニメーション */
+        .notification.hide {
+            transform: translateX(100%);
+            opacity: 0;
+            transition: transform 0.5s ease-in, opacity 0.5s ease-in;
+        }
+
+  </style>
+  <body>
+    <script src="./static/js/pico.js"></script>
+    <video style='display: none;' id="video" autoplay playsinline></video>
+    <canvas style='display: none;' id="canvas_video"></canvas>
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <div style="position: absolute; top:50px; width:100%; height:400px; text-align: center;">
+    <!-- <img src='./static/combini_qr.png' width="580px" height="170px;" >-->
+    </div>
+
+    <!-- Three.js本体とGLTFローダー -->
+    <div id='canvas' style='display: flex;justify-content: center;'>
+        <div style="display: none;">
+          <input style='top:20px;' type="button" value="home" id='home'>
+          <input type="button" value="baibai" id='baibai'>
+          <input style='top:100px;' type="button" value="ojigi" id='ojigi'>
+          <input style='top:140px;' type="button" value="sleep" id='sleep'>
+          <input style='top:180px;' type="button" value="shake_head" id='shake_head'>
+          <input style='top:220px;' type="button" value="shake_body" id='shake_body'>
+          <input style='top:260px;' type="button" value="garagara" id='garagara'>
+        
+        </div>
+        <input type="button" value="Start" id='start'>
+  
+        <div style='position:absolute;bottom:5px; display: none;'>
+          <div style='display: flex; justify-content: center;'>
+            <div style='width:80px; height:90px;'>
+              <div class="value2">90</div>
+              <input name="neck-input" type="range" class="vertical" min="60" max="120" step="1" value=90">
+            </div>
+            <div>
+              <div class="value">90</div>
+              <input name="body-input" style="transform: scale(-1, 1);" type="range" min="0" max="180" step="1" value="90">
+            </div>
+            <div style='margin:10px 20px 5px 20px;text-align:center;'>
+              <div style='margin-bottom:5px;'>LED</div>
+              <input type="color" name="led-color" value="#ffffff">
+            </div>
+          </div>
+        </div>
+    </div>
+    <div id="output"></div>
+    <audio style='visibility: hidden;' id="audio" controls></audio>
+
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three" : "./static/js/three.module.js",
+        "three/loaders/": "./static/jsm/loaders/",
+        "three/geometries/": "./static/jsm/geometries/"
+      }
+    }
+    </script>
+
+
+    <script  type="module">
+      import * as THREE from 'three';
+      import { GLTFLoader} from 'three/loaders/GLTFLoader.js';
+      import { FontLoader } from "three/loaders/FontLoader.js";
+      import { TextGeometry } from "three/geometries/TextGeometry.js";
+      import { RoundedBoxGeometry } from 'three/geometries/RoundedBoxGeometry.js';
+
+        function sendSlackNotify(text) {
+            //fetch('./send-to-slack', {
+            //    method: 'POST',
+            //    headers: { 'Content-Type': 'application/json' },
+            //    body: JSON.stringify({ message: text })
+            //});
+        }
+
+      
+      function sendSlackMessage(message, debug=false) {
+            const container = document.getElementById('notificationContainer');
+
+            // 新しい通知を作成
+            const notification = document.createElement('div');
+            notification.classList.add('notification');
+
+            // ヘッダー部分（アイコンと名前）
+            const header = document.createElement('div');
+            header.classList.add('notification-header');
+
+            const icon = document.createElement('img');
+            icon.src = "./static/megutan.png"; // アイコン画像のURL
+            icon.alt = "AI Comビニ店員";
+
+            const name = document.createElement('span');
+            name.innerText = "AI Comビニ店員  ➡︎  店長";
+
+            header.appendChild(icon);
+            header.appendChild(name);
+
+            // 本文
+            const content = document.createElement('div');
+            content.innerText = message;
+
+            // 要素を結合
+            notification.appendChild(header);
+            notification.appendChild(content);
+            container.appendChild(notification);
+
+            // 画面にスライドイン表示
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            // 一定時間後に消す
+            setTimeout(() => {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 5000);
+
+            // 右端からスライドイン（親コンテナを調整）
+            container.style.right = "120px"; // 右端から50pxに調整
+
+            if(!debug){
+                sendSlackNotify(message);
+            }
+
+        }
+
+        // テスト用
+        setTimeout(() => sendSlackMessage('お客様が暖かいご飯を置いてほしいと言っています。', true), 2000);
+        //setTimeout(() => sendSlackMessage('お客様が暖かいご飯を置いてほしいと言っています。'), 2000);
+
+      let width = window.innerWidth ;
+      let height = window.innerHeight;
+
+      let mouseX = 0, mouseY = 0;
+      let windowHalfX = width / 2;
+      let windowHalfY = height / 2;
+
+      var frame = 0;
+      var robot = new THREE.Group();
+      var pose= 'sleep';
+      var is_garagara_start = false;
+
+      let video = document.getElementById('video');
+      let canvas_video = document.getElementById('canvas_video');
+      let ctx_video = canvas_video.getContext('2d');
+
+      const VIDEO_WIDTH = 400;
+      const VIDEO_HEIGHT = 300;
+      const SLEEP_TIMEOUT_MILLSECOND_TH = 15000;
+      const AUTO_CATCH_START_MILLSECOND_TH = 180000;
+      const AUDIO_ACTIVE_TH = 1200;
+      video.width = VIDEO_WIDTH;
+      video.height = VIDEO_HEIGHT;
+      canvas_video.width = VIDEO_WIDTH;
+      canvas_video.height = VIDEO_HEIGHT;
+      let largestFace = null;
+      let audio_power = 0;
+      let isActive = false;
+      let isAudioReady = false;
+      let lastSoundActiveTime = performance.now(); 
+      let ws = null;
+      
+      const outputDiv = document.getElementById('output');
+
+      // シーンを追加
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xddeeff);
+      var bones=[];
+      var regi_display = null;
+
+      // ライトを追加
+      // 環境光
+      const ambientLight = new THREE.AmbientLight(0xcccccc, 10.5);
+      scene.add(ambientLight);
+      // 太陽光
+      const light = new THREE.DirectionalLight(0xFFFFFF, 4.5);
+      //scene.add(light);
+      // ポイントライト
+      const pointLight = new THREE.PointLight(0xffffff, 0.8);
+      //scene.add(pointLight);
+
+      // 1km四方の地面を追加
+      const geometry = new THREE.PlaneGeometry( 1000, 1000 );
+      const material = new THREE.MeshBasicMaterial(
+        {color: 0x666666, side: THREE.DoubleSide} );
+      const plane = new THREE.Mesh( geometry, material );
+      plane.rotation.x = 90 * Math.PI / 180;
+      //scene.add( plane );
+
+      var font_loader = new FontLoader();
+      var textMesh_exclamation;
+      const zzz = new THREE.Group();
+      const irassyai = new THREE.Group();
+      const atari = new THREE.Group();
+      const ooatari = new THREE.Group();
+      const hazure = new THREE.Group();
+
+      // テクスチャの読み込み
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load('./static/combini_logo.png', function (texture) {
+        // 平面ジオメトリの作成
+        const geometry = new THREE.PlaneGeometry(30*1.75, 15*1.75); // サイズを調整可能
+        texture.colorSpace = THREE.SRGBColorSpace;
+        const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+        const plane = new THREE.Mesh(geometry, material);
+        // 平面をシーンに追加
+        plane.position.set(0,-40,121);
+        scene.add(plane);
+      });
+
+      // テクスチャの読み込み
+
+      font_loader.load('./static/fonts/Koruri_Bold_Bold.json', function(font){
+       var textGeometry_exclamation = new TextGeometry("!", { font: font, size: 45, height: 6, curveSegments: 5,
+         bevelEnabled: true, bevelThickness: 0.1,bevelSize: 0.1, bevelOffset: 0.1, bevelSegments: 10,});
+       textGeometry_exclamation.center();
+       var materials_exclamation = [
+         new THREE.MeshBasicMaterial( { color: 0xff0000, overdraw: 0.5 } ),
+         new THREE.MeshBasicMaterial( { color: 0xff0000, overdraw: 0.5 } )
+       ];
+       textMesh_exclamation = new THREE.Mesh(textGeometry_exclamation, materials_exclamation);
+       //textMesh_exclamation.scale.set(1.5, 1.5, 1.5);
+       textMesh_exclamation.position.set(0,180,20);
+       textMesh_exclamation.visible = false;
+       robot.add(textMesh_exclamation);
+
+       var textGeometry_zzz = new TextGeometry("Z", { font: font, size: 30, height: 6, curveSegments: 2,
+         bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.5, bevelOffset: 0.5, bevelSegments: 10,});
+       textGeometry_zzz.center();
+
+       for(let i=0; i<3;i++){
+         var materials_zzz = [
+           new THREE.MeshBasicMaterial( { color: 0x555555, overdraw: 0.5, transparent: true} ),
+           new THREE.MeshBasicMaterial( { color: 0x555555, overdraw: 0.5, transparent: true } )
+         ];
+         var textMesh_zzz = new THREE.Mesh(textGeometry_zzz, materials_zzz);
+         zzz.add(textMesh_zzz);
+       }
+       zzz.visible = false;
+       robot.add(zzz);
+
+       var textGeometry_irassyai = new TextGeometry("いらっしゃいませー", { font: font, size: 30, height: 5, curveSegments: 2,
+         bevelEnabled: true, bevelThickness: 1, bevelSize: 0.5, bevelOffset: 0.5, bevelSegments: 10,});
+        var materials_irassyai = [
+          new THREE.MeshBasicMaterial( { color: 0x555555, overdraw: 0.5, transparent: true} ),
+          new THREE.MeshBasicMaterial( { color: 0x555555, overdraw: 0.5, transparent: true } )
+        ];
+        textGeometry_irassyai .center();
+        var textMesh_irassyai = new THREE.Mesh(textGeometry_irassyai, materials_irassyai);
+        irassyai.add(textMesh_irassyai);
+        irassyai.position.set(0,30,-100);
+        scene.add(irassyai);
+
+        var textGeometry_ooatari = new TextGeometry("大当たり", { font: font, size: 15, height: 3, curveSegments: 2,
+         bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.25, bevelOffset: 0.25, bevelSegments: 5,});
+        var materials_ooatari = [
+          new THREE.MeshBasicMaterial( { color: 0xff5555, overdraw: 0.5, transparent: true} ),
+          new THREE.MeshBasicMaterial( { color: 0xff5555, overdraw: 0.5, transparent: true } )
+        ];
+        textGeometry_ooatari .center();
+        var textMesh_ooatari = new THREE.Mesh(textGeometry_ooatari, materials_ooatari);
+        ooatari.add(textMesh_ooatari);
+        ooatari.position.set(50,70,80);
+        ooatari.visible=false;
+        scene.add(ooatari);
+
+        var textGeometry_atari = new TextGeometry("当たり", { font: font, size: 15, height: 3, curveSegments: 2,
+         bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.25, bevelOffset: 0.25, bevelSegments: 5,});
+        var materials_atari = [
+          new THREE.MeshBasicMaterial( { color: 0xff5555, overdraw: 0.5, transparent: true} ),
+          new THREE.MeshBasicMaterial( { color: 0xff5555, overdraw: 0.5, transparent: true } )
+        ];
+        textGeometry_atari .center();
+        var textMesh_atari = new THREE.Mesh(textGeometry_atari, materials_atari);
+        atari.add(textMesh_atari);
+        atari.position.set(50,70,80);
+        atari.visible=false;
+        scene.add(atari);
+
+        var textGeometry_hazure = new TextGeometry("ハズレ", { font: font, size: 15, height: 3, curveSegments: 2,
+         bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.25, bevelOffset: 0.25, bevelSegments: 5,});
+        var materials_hazure = [
+          new THREE.MeshBasicMaterial( { color: 0xff5555, overdraw: 0.5, transparent: true} ),
+          new THREE.MeshBasicMaterial( { color: 0xff5555, overdraw: 0.5, transparent: true } )
+        ];
+        textGeometry_hazure .center();
+        var textMesh_hazure = new THREE.Mesh(textGeometry_hazure, materials_hazure);
+        hazure.add(textMesh_hazure);
+        hazure.position.set(50,70,80);
+        hazure.visible=false;
+        scene.add(hazure);
+
+      });
+
+
+
+      const regi = new THREE.Group();
+
+
+     function make_box(size, color ){
+      const group = new THREE.Group();
+      // 立方体ジオメトリの作成
+      var geometry2 = new RoundedBoxGeometry(size[0], size[1], size[2], 10, 5);
+      var material2 = new THREE.MeshBasicMaterial({ color: color });
+      const cube = new THREE.Mesh(geometry2, material2);
+      group.add(cube);
+
+      var geometry3 = new THREE.BoxGeometry(size[0], size[1], size[2]);
+
+      // 立方体のエッジを描画
+      const edges = new THREE.EdgesGeometry(geometry3); // エッジジオメトリを作成
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 0x444444 }); // 黒色のラインマテリアル
+      const line = new THREE.LineSegments(edges, lineMaterial); // エッジにラインを適用
+      
+      group.add(line);
+      return group;
+     }
+
+     var box1 = make_box([300, 70, 50], 0xdeb887);
+     box1 .position.set(0,-45,90);
+     scene.add(box1);
+     var box1 = make_box([305, 5, 55], 0xf9f9f9);
+     box1 .position.set(0,-8,92);
+     scene.add(box1);
+
+     var box1 = make_box([60, 16, 45], 0xf5f5f5);
+     box1 .position.set(-95,2.6,95);
+     regi.add(box1);
+     var box1 = make_box([60, 16, 35], 0xf5f5f5);
+     box1 .position.set(-95,18.6,99);
+     regi.add(box1);
+
+     var box1 = make_box([40, 20, 6], 0xf5f5f5);
+     box1 .position.set(-95,42,110);
+     regi.add(box1);
+     regi_display = make_box([35, 15, 6], 0x555555);
+     regi_display.position.set(-95,42,111);
+     regi.add(regi_display);
+     var box1 = make_box([6, 10, 6], 0xf5f5f5);
+     box1 .position.set(-95,31.9,107);
+     regi.add(box1);
+
+     regi.position.set(20,0,0);
+     scene.add(regi)
+
+
+     var box1 = make_box([1200, 1, 1200], 0xfff0f0);
+     box1 .position.set(0,-81,200);
+     //scene.add(box1);
+
+      // カメラの追加
+      const camera = new THREE.PerspectiveCamera(
+        45, width / height, 1, 2000);
+      camera.position.z = 450;
+      camera.position.y = 100;
+
+      // レンダラーを追加
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(width, height);
+
+      //renderer.xr.enabled = true;
+      //document.getElementById('main_canvas').appendChild( VRButton.createButton(renderer));
+      renderer.useLegacyLights = false;
+      //renderer.outputColorSpace = THREE.sRGBEncoding;
+      //renderer.toneMapping = THREE.CineonToneMapping; //THREE.ReinhardToneMapping;
+
+      THREE.Cache.enabled = true;
+
+      var elm = document.getElementById('canvas');
+
+      elm.appendChild(renderer.domElement);
+
+      var kihou_list = [];
+      var color_codes = ['#ff7fff', '#7f7fff']
+
+      for (let i = 0; i < 1; i++){
+          var r=Math.random()*5+1;
+          var geometry2 = new THREE.SphereGeometry( r,30,30 );
+          var  material2 = new THREE.MeshLambertMaterial({color: color_codes[i%2], transparent: true, opacity: 0.5,});
+          var sphere = new THREE.Mesh( geometry2, material2 );
+          var x =  (Math.random()-0.5)*600;
+          var y = -100-Math.random()*300;
+          var z = (Math.random()-0.5)*300;
+          sphere.position.set(x,y,z);
+          scene.add(sphere);
+          kihou_list.push(sphere);
+      }
+      console.log(sphere.geometry.parameters.radius);
+
+
+
+      function zzz_update(){
+        for(let k=0; k<zzz.children.length;k++){
+          var textMesh_zzz = zzz.children[k];
+          var offset = ((frame+k*80)%240)/240;
+          var scale = 0.5+Math.sin(offset*Math.PI)/2.5;
+          textMesh_zzz.material[0].opacity = Math.sin(offset*Math.PI)/1.2;
+          textMesh_zzz.material[1].opacity = Math.sin(offset*Math.PI)/1.2;
+          textMesh_zzz.scale.set(scale, scale, scale);
+          textMesh_zzz.position.set(50+offset*70 + Math.sin(offset*Math.PI*3)*7,120+offset*70,10);
+        }
+      };
+
+      function kihou_update(){
+          for (let kihou of kihou_list){
+              if(Math.random()>0.005){
+               kihou.position.x = kihou.position.x+(Math.random()-0.5)*2;
+               kihou.position.y = kihou.position.y+2;
+               kihou.position.z = kihou.position.z+(Math.random()-0.5)*2;
+           }else{
+              var x =  (Math.random()-0.5)*600;
+              var y = -100-Math.random()*300;
+              var z = (Math.random()-0.5)*300;
+              kihou.position.set(x,y,z);
+           }
+          }
+      }
+
+    
+      const request_robot_status = function(){
+        window.parent.postMessage({
+         action: 'command',
+         message: 'status'
+        }, '*', );
+      };
+
+      // GLTFファイルを読み込む
+      const GLTFFILE = './static/gltf/megtan_v4_remesh.glb';
+      const GLTFFILE_GARAGARA_A = './static/gltf/garagarapon_A.glb';
+      const GLTFFILE_GARAGARA_B = './static/gltf/garagarapon_B.glb';
+      const gltfLoader = new GLTFLoader()
+      const gltfLoader2 = new GLTFLoader()
+      const gltfLoader3 = new GLTFLoader()
+      var model;
+      var head;
+      var garagarapon_A;
+      var garagarapon_B;
+      
+      gltfLoader.load(GLTFFILE, (gltf) => {
+        model = gltf.scene;
+        model.scale.set(80.0, 80.0, 80.0);
+        model.position.set(0, -80, 0);
+        model.rotation.y = Math.PI;
+
+        model.traverse((object) => { //モデルの構成要素をforEach的に走査
+              if(object.isMesh) { //その構成要素がメッシュだったら
+                object.material.blending = THREE.CustomBlending ;
+              }
+              if (object.isBone){
+                bones.push(object);
+              }
+          });
+        
+        console.log(bones);
+        robot.add(model);
+        scene.add(robot);
+
+        setInterval(request_robot_status, 100);
+      }, undefined, (error) => {
+        console.error(error);
+      });
+
+      gltfLoader2.load(GLTFFILE_GARAGARA_A, (gltf) => {
+        garagarapon_A = gltf.scene;
+        garagarapon_A.scale.set(25, 25, 25);
+        garagarapon_A.position.set(45, 28, 90);
+        garagarapon_A.rotation.order = 'YXZ';
+        garagarapon_A.rotation.y = -Math.PI/2.;
+  
+        scene.add(garagarapon_A);
+      }, undefined, (error) => {
+        console.error(error);
+      });
+
+      gltfLoader3.load(GLTFFILE_GARAGARA_B, (gltf) => {
+        garagarapon_B = gltf.scene;
+        garagarapon_B.scale.set(25.0, 25.0, 25.0);
+        garagarapon_B.position.set(45, 28, 90);
+        garagarapon_B.rotation.y = -Math.PI/2.;
+  
+        scene.add(garagarapon_B);
+      }, undefined, (error) => {
+        console.error(error);
+      });
+
+      function set_LED(color){
+        if(model){
+          
+          model.traverse((object) => { //モデルの構成要素をforEach的に走査
+                if(object.isMesh) { //その構成要素がメッシュだったら
+                  if(object.name=='Sphere002'){
+                     object.material.emissive = new THREE.Color(color);
+                  }
+                }
+            });
+        }
+      }
+
+      // マウスイベントなどを設定
+      //document.addEventListener('mousemove', onDocumentMouseMove);
+      window.addEventListener('resize', onWindowResize);
+
+      // 描画処理
+      function animate() {
+        requestAnimationFrame(animate);        
+        //kihou_update();
+        zzz_update();
+        pose_update();
+
+        if (bones.length>0) {
+            let headBone = bones[3]
+
+            // カメラの位置を取得して、頭部ボーンがカメラを向くように回転
+            const targetPosition = new THREE.Vector3();
+            camera.getWorldPosition(targetPosition);
+
+            // ローカルの方向ベクトルを取得
+            const headPosition = new THREE.Vector3();
+            headBone.getWorldPosition(headPosition);
+
+            const direction = new THREE.Vector3().subVectors(targetPosition, headPosition).normalize();
+
+            // 首の回転を分離して制御
+            const targetRotationX = Math.atan2(direction.y, direction.z);  // 上下の回転（x軸）
+            const targetRotationY = Math.atan2(direction.x, direction.z);  // 左右の回転（y軸）
+
+            // x軸（上下）の回転を制限して適用
+            headBone.rotation.x = THREE.MathUtils.clamp(targetRotationX, -Math.PI / 6, Math.PI / 6);  // 上下の動きを制限
+
+            // y軸（左右）の回転をスムーズに適用
+            headBone.rotation.y = THREE.MathUtils.lerp(headBone.rotation.y, targetRotationY, 0.1);
+
+
+        }
+        render();
+        if(frame%10==0){
+          drawStatus();
+
+
+          if((performance.now() - lastSoundActiveTime > SLEEP_TIMEOUT_MILLSECOND_TH) && isActive){
+            sleepMode();
+          } 
+
+          if((performance.now() - lastSoundActiveTime > AUTO_CATCH_START_MILLSECOND_TH) && !isActive){
+            if (Math.random() < 0.01) {
+               isActive = true;
+               startWebSocket('指示: 寝言を言ってください');
+               console.log('auto wakeup')
+            }
+          } 
+
+          //Activeなのにwsが閉じてたら
+          if (isActive && (!ws || ws.readyState === WebSocket.CLOSED) && !WebSocket.CONNECTING) {
+            console.log('websocket Resume')
+            startWebSocket();
+          }
+          
+        }
+        frame++;
+      }
+
+      var start_frame = 0;
+
+      function pose_home(){
+        bones[1].rotation.x = 0;
+        bones[4].rotation.z = Math.PI/2;
+        bones[4].rotation.y = 0;
+        bones[5].rotation.z = Math.PI/6.;
+        bones[5].rotation.x = 0;
+        bones[6].rotation.z = -Math.PI/2;
+        bones[6].rotation.y = 0;
+        bones[7].rotation.z = -Math.PI/6.;
+        bones[7].rotation.x = 0;
+        bones[1].rotation.z = 0;
+        robot.rotation.y=0;
+        zzz.visible=false;
+      }
+
+      function pose_update(){
+        if(pose == 'ojigi'){
+          if(bones.length>0){
+            pose_home();
+            bones[1].rotation.x = Math.sin((frame-start_frame)/20+Math.PI/2)/4.;
+            bones[4].rotation.y =  -Math.sin((frame-start_frame)/20-Math.PI/2)/4.-Math.PI/8.;
+            bones[5].rotation.x =  -Math.sin((frame-start_frame)/20-Math.PI/2)/4.-Math.PI/4.;
+            bones[6].rotation.y =  Math.sin((frame-start_frame)/20-Math.PI/2)/4.+Math.PI/8.;
+            bones[7].rotation.x =  -Math.sin((frame-start_frame)/20-Math.PI/2)/4.-Math.PI/4.;
+          }
+        }
+        else if(pose == 'baibai'){
+          if(bones.length>0){
+            pose_home();
+            bones[4].rotation.z = Math.PI/2.5 + Math.sin((frame-start_frame)/20+Math.PI)/8.;
+            bones[5].rotation.z = Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            bones[6].rotation.z = -(Math.PI/2.5 + Math.sin((frame-start_frame)/20+Math.PI)/8.);
+            bones[7].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+
+            bones[1].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+          }
+        }else if(pose == 'home'){
+          if(bones.length>0){
+            pose_home();
+
+          }
+        }
+        else if(pose == 'sleep'){
+          if(bones.length>0){
+            pose_home();
+            zzz.visible = true;
+            bones[1].rotation.x = Math.sin((frame-start_frame)/20+Math.PI/2)/6.+Math.PI/8.;
+          }
+        }
+        else if(pose == 'shake_head'){
+          if(bones.length>0){
+            pose_home();
+            bones[0].rotation.y = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+          }
+        }
+        else if(pose == 'shake_body'){
+          if(bones.length>0){
+            pose_home();
+            bones[1].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+          }
+        }
+        
+        if(is_garagara_start){
+          if(garagarapon_A){
+            garagarapon_A.rotation.x = -Math.PI*(frame-start_frame)/50.;
+          }          
+        }
+
+        //irassyai.position.x -=1;
+        //if(irassyai.position.x<-500){
+        //  irassyai.position.x=500;
+        //}
+
+
+      }
+
+      // 描画開始
+      animate();
+
+
+      function render() {
+        if(largestFace){
+          //camera.position.y += (-mouseY - camera.position.y) * .1;
+          let diff_x = (largestFace.x - VIDEO_WIDTH/2. - camera.position.x) * .2;
+          diff_x = Math.min(diff_x, 3);
+          diff_x = Math.max(diff_x, -3);
+          camera.position.x +=diff_x
+        }else{
+          //camera.position.x += (mouseX - camera.position.x) * .001;
+          //camera.position.y += (-mouseY - camera.position.y) * .1;
+
+      
+
+        }
+
+        if(regi_display){
+          if(isActive){
+            regi_display.children[0].material.color.set(0x4682b4);
+          }else{
+            regi_display.children[0].material.color.set(0x555555);
+          }
+        }
+
+
+        if(camera.position.y<0){
+          camera.position.y = 0;
+        }
+          
+        camera.lookAt(new THREE.Vector3(0, 60, 0));
+        renderer.render(scene, camera);
+      }
+
+      // リサイズ時のカメラ調整
+      function onWindowResize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        windowHalfX = width / 2;
+        windowHalfY = height / 2;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
+
+      // マウスが動いたときの座標記録
+      function onDocumentMouseMove(event) {
+        
+        mouseX = (event.clientX - window.innerWidth/2) /2;
+        mouseY = (event.clientY - windowHalfY) /2*1.5;
+        mouseY = Math.min(mouseY, 50);
+      }
+
+      let body, neck, led, robot_status, is_touched;
+      let is_connect_robot = false;
+
+      var elem_body = document.querySelector('input[name="body-input"]');
+
+      var rangeValue_body = function(){
+        pose = '';
+        var newValue = elem_body.value;
+        var target = document.querySelector('.value');
+        target.innerHTML = newValue;
+        if(!is_connect_robot){
+          robot.rotation.y =  (90-Number(newValue))/180*Math.PI;
+          //bones[0].rotation.y = (90-Number(newValue))/180*Math.PI;
+        }
+        window.parent.postMessage({
+         action: 'command',
+         message: 'body='+newValue
+        }, '*', );
+      }
+
+      elem_body.addEventListener("input", rangeValue_body);
+
+      var elem_neck = document.querySelector('input[name="neck-input"]');
+
+      var rangeValue_neck = function(){
+        pose = '';
+        var newValue = elem_neck.value;
+        var target = document.querySelector('.value2');
+        target.innerHTML = newValue;
+        if(!is_connect_robot){
+          bones[1].rotation.z = -(Number(newValue)-90)/180*Math.PI;
+        }
+         window.parent.postMessage({
+          action: 'command',
+          message: 'neck='+newValue
+          }, '*', );
+      }
+
+      elem_neck.addEventListener("input", rangeValue_neck );
+
+      var elem2 = document.querySelector('input[name="led-color"]');
+
+      var colorValue = function(){
+        var code = elem2.value;
+        var red   = parseInt(code.substring(1,3), 16);
+        var green = parseInt(code.substring(3,5), 16);
+        var blue  = parseInt(code.substring(5,7), 16);
+        if(!is_connect_robot){
+          scene.background = new THREE.Color(code);
+          set_LED(`rgb(${red},${green},${blue})`);
+        }
+        window.parent.postMessage({
+         action: 'command',
+         message: 'led='+code
+        }, '*', );
+      }
+
+      elem2.addEventListener("input", colorValue);
+
+      function action(e) {
+        console.log(e.value);
+
+        start_frame = frame;
+        pose = e.value;
+        window.parent.postMessage({
+         action: 'command',message: e.value
+        }, '*', );
+      };
+      let baibai_button = document.getElementById('baibai');
+      baibai_button.addEventListener('click', function() {
+        action(this);
+      });
+      let ojigi_button = document.getElementById('ojigi');
+      ojigi_button.addEventListener('click', function() {
+        action(this);
+      });
+      let sleep = document.getElementById('sleep');
+      sleep.addEventListener('click', function() {
+        action(this);
+        if(!is_connect_robot & zzz.visible){
+          zzz.visible = false;
+        }else if(!is_connect_robot & !zzz.visible){
+          zzz.visible = true;
+        }
+      });
+      let shake_head = document.getElementById('shake_head');
+      shake_head.addEventListener('click', function() {
+        action(this);
+      });
+      let shake_body = document.getElementById('shake_body');
+      shake_body.addEventListener('click', function() {
+        action(this);
+      });
+      let garagara = document.getElementById('garagara');
+      garagara.addEventListener('click', function() {
+        if(!is_garagara_start){
+          start_frame = frame;
+          is_garagara_start=true;
+          ooatari.visible = false;
+          atari.visible = false;
+          hazure.visible = false;
+          
+          setTimeout(() => {
+              is_garagara_start = false;
+              lottery();
+            }, 3200); 
+        }
+
+
+      });
+      let home_button = document.getElementById('home');
+      home_button.addEventListener('click', function() {
+        //action(this);
+        pose_home();
+        pose='';
+      });
+
+
+      function lottery(){
+        const ransu = Math.random();
+        if(ransu>0.9){
+          ooatari.visible = true;
+          sendSingleTextMessage('抽選で大当たりが出ました');
+        }else if(ransu>0.5){
+          atari.visible = true;
+          sendSingleTextMessage('抽選で当たりが出ました');
+        }else{
+          hazure.visible = true;
+          sendSingleTextMessage('抽選でハズレが出ました');
+        }
+
+        setTimeout(() => {
+          ooatari.visible = false;
+          atari.visible = false;
+          hazure.visible = false;
+          }, 3000); 
+
+      }
+
+      /// GEMINI
+      let audioContext = null;
+      // URLパラメータからapiKeyを取得
+      function getApiKeyFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('apiKey');
+      }
+      let apiKey = getApiKeyFromUrl();
+      let mediaRecorder = null
+      let isPlaying = false;
+
+      const audioQueue = []; // Queue for audio buffers
+      const TARGET_SAMPLE_RATE = 16000;
+
+      let start_button = document.getElementById('start');
+
+      function drawStatus(){
+        outputDiv.innerHTML = `<p>isActive: ${isActive}</p>`;
+        
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            outputDiv.innerHTML += `<p>Webscoket: Open`;
+        }else{
+          outputDiv.innerHTML += `<p>Webscoket: Close`;
+        }
+        outputDiv.innerHTML += `<p>Mic Power: ${audio_power}</p>`;
+        if(largestFace){
+          outputDiv.innerHTML += `<p>Face size: ${largestFace.size}</p>`;
+        }else{
+          outputDiv.innerHTML += `<p>Face size: no face</p>`;
+        }
+
+        
+      }
+
+
+      async function initAudio(){
+          // AudioContext初期化（端末により44.1kHzまたは48kHzなど）
+          audioContext = new AudioContext();
+          await audioContext.audioWorklet.addModule(URL.createObjectURL(
+            new Blob([`
+              class PCMWorklet extends AudioWorkletProcessor {
+                process(inputs) {
+                  // デフォルトで1ch分の Float32Array
+                  const input = inputs[0];
+                  if (!input || !input[0]) return true;
+                  // ここでは特に処理せず、メインスレッドへ送る
+                  this.port.postMessage(input[0]);
+                  return true;
+                }
+              }
+              registerProcessor('pcm-worklet', PCMWorklet);
+            `], { type: 'application/javascript' })
+            ));
+
+            // AudioContext を再開
+            audioContext.resume().then(() => {
+                startWebSocket('こんにちは'); // WebSocketを開始
+                startStreaming();                      
+              });
+      }
+
+      
+
+      start_button.addEventListener('click', async function() {
+          start_button.style.visibility = 'hidden';
+          initAudio();
+      });
+
+
+      function startWebSocket(wakeup_text='') {
+        isActive = true;
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+        ws = new WebSocket(`wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`);
+
+        const tools = [
+              {
+                  "function_declarations":[
+                      {
+                          "name": "gesture",
+                          "description": `ジェスチャーをします。
+                          ・ojigi(お辞儀)はいらっしゃいませを言うときに
+                          ・baibai(バイバイ)はさよならするときに
+                          ・sleep(居眠り)は話がよくわからなかったときに
+                          ・shake_head(首を横にふる)は首を横に振って否定するときに
+                          ・shake_body(体を揺らす)は特にすることがなければこれを選んでください
+                          ・抽選を求められた場合はgaragara(ガラガラ)を選んでください
+                          ・
+                          使ってください。
+                          `,
+                          "parameters": {
+                              "type": "object",
+                              "properties": {
+                                  "pose": {"type": "string",  "enum": ["ojigi", "baibai", "sleep", "shake_head", "shake_body", "garagara"]}
+                              },
+                              "required": ["pose"]
+                      }
+                  },
+                  {
+                          "name": "sendMessageStaff",
+                          "description": `店長にメッセージを送ります。「お客様が〜と言っています」のようなメッセージをtextに入れてください。`,
+                          "parameters": {
+                              "type": "object",
+                              "properties": {
+                                  "text": {"type": "string"}
+                              },
+                              "required": ["text"]
+                      }
+                  }
+                  ]
+              },
+              {
+                "codeExecution":{}
+              }
+          ]
+
+          
+
+        const instruction = `あなたはコンビニのAIスタッフです。フランクに話してください。
+        発話するときは、ジェスチャーをツールを使ってどれか選んでください。
+
+        コンビニの利用方法について聞かれたら、QRコードを読み取ってスマホに専用アプリを入れるよう促してください。
+        決済手段は、dポイント、PayPay、クレジットカードなど各種電子決済が使えます。
+
+        お客様からなにか要望を受けた場合は、気軽にsendMessageStaffツールで店長に教えてください。
+        店長はすぐには対応できませんが、後日対応します。
+
+        抽選を求められたらツールでガラガラ(garagara)を実行してください。
+        ユーザがガラガラを回して結果を伝えてきます。
+        当たっても特に景品はないので、適当にコメントしてください。
+
+        雑談の場合は、お店に増やしてほしい商品など要望がないか聞き出してください。
+
+        おすすめの商品は、たらこおにぎりです。
+        `
+
+        ws.onopen = () => {
+          console.log('WebSocket opened.');
+          
+          // セットアップメッセージ
+          ws.send(JSON.stringify({
+            setup: {
+              model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
+              system_instruction:{
+                  "parts":[{
+                  "text": instruction
+                  }],
+                  "role": "model"
+              },
+              tools: tools,
+              generationConfig: {
+                  responseModalities: ["AUDIO"],
+                  speechConfig:{
+                      voiceConfig:{
+                          prebuiltVoiceConfig:{
+                              voiceName:'Aoede'  //Aoede、Charon、Fenrir、Kore、Puck
+                          }
+                      }
+                  }
+              }
+            }
+          }));
+
+          if(wakeup_text.length>0){
+            sendSingleTextMessage(wakeup_text);
+          }
+        };
+
+        ws.onmessage = async　(event) => {
+          // テキスト or 音声のレスポンスを表示
+          const data = await new Response(event.data).json();
+          handleServerMessage(data);
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket closed.');
+          console.log(`Code: ${event.code}, Reason: ${event.reason}`);
+          outputDiv.innerHTML += '<p>WebSocket closed</p>';
+        };
+
+        ws.onerror = (err) => {
+          console.error('WebSocket error:', err);
+          outputDiv.innerHTML += `<p style="color:red">WebSocket error: ${err}</p>`;
+        };
+    }
+
+    function sleepMode(){
+      console.log('sleepMode')
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+      pose = 'sleep';
+      isActive = false;
+    }
+
+    function calculateRMS(int16Data) {
+      if (int16Data.length === 0) return 0;
+      const sum = int16Data.reduce((acc, val) => acc + val * val, 0);
+      return Math.ceil(Math.sqrt(sum / int16Data.length));
+    }
+
+
+    // 音声取得開始
+    async function startStreaming() {
+      try {
+        // ユーザのマイクストリームを取得
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            sampleRate: 48000,      // 多くの端末は48kHz
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+        // メインのAudioContextに接続
+        const source = audioContext.createMediaStreamSource(stream);
+
+        // WorkletNode生成
+        const workletNode = new AudioWorkletNode(audioContext, 'pcm-worklet');
+
+        // WorkletNodeからメッセージを受け取って送信
+        workletNode.port.onmessage = (e) => {
+          isAudioReady = true;  
+          const float32Data = e.data; // Float32Array
+          // ここで16kHzにリサンプリング
+          const resampledFloat32 = resampleAudio(float32Data, audioContext.sampleRate, TARGET_SAMPLE_RATE);
+          // Int16に変換
+          const int16Data = convertFloat32ToInt16(resampledFloat32);
+          // 平均音圧
+          audio_power = calculateRMS(int16Data);
+
+          if(audio_power>AUDIO_ACTIVE_TH){
+            if(!isActive){
+              startWebSocket();
+              pose='ojigi'
+            }
+            
+            lastSoundActiveTime = performance.now();
+
+          }
+          
+          // base64変換
+          const base64Data = int16ArrayToBase64(int16Data);
+
+          // WebSocketがopenなら送信
+          if (ws && ws.readyState === WebSocket.OPEN ) {
+            ws.send(JSON.stringify({
+              realtime_input: {
+                media_chunks: [
+                  {
+                    mime_type: `audio/pcm;rate=${TARGET_SAMPLE_RATE}`,
+                    data: base64Data
+                  }
+                ]
+              }
+            }));
+          }
+        };
+
+        // source -> workletNode -> (portでメッセージ送出)
+        source.connect(workletNode);
+        // workletNodeがスピーカーに行かないよう、何もつながない or destinationに繋いでもよい
+        // workletNode.connect(audioContext.destination);
+
+      } catch (err) {
+        console.error('Error accessing microphone:', err);
+      }
+    }
+
+    // 受信メッセージを処理（テキスト/音声レスポンスに応じて適宜処理）
+    function handleServerMessage(data) {
+
+        
+        
+        if (data.serverContent && data.serverContent.modelTurn && data.serverContent.modelTurn.parts) {
+            const audioPart = data.serverContent.modelTurn.parts.find(part => part.inlineData && part.inlineData.mimeType.startsWith("audio/pcm"));
+            if (audioPart) {
+                const audioData = atob(audioPart.inlineData.data); // Decode base64
+                const buffer = new Uint8Array(audioData.length);
+                for (let i = 0; i < audioData.length; i++) {
+                    buffer[i] = audioData.charCodeAt(i);
+                }
+
+                // PCMデータをFloat32に変換してキューに追加
+                const pcmData = convertPCMToFloat32(buffer);
+                queuePCMData(pcmData);
+                lastSoundActiveTime = performance.now();
+            }
+        }else if ('toolCall' in data) {
+          const functionCalls = data.toolCall.functionCalls; // 複数の場合もあるため
+          const toolResponses = [];
+
+          for (const call of functionCalls) {
+              const { name: call_name, args: call_args, id: call_id } = call;
+              console.log("Function Call:", call_name, call_args);
+
+              let content = {status:'done' }; // モデルに返す結果のデフォルト
+
+
+              if (call_name === "gesture") {
+                  if (call_args.pose === 'garagara') {
+                      if (!is_garagara_start) {
+                          start_frame = frame;
+                          is_garagara_start = true;
+                          ooatari.visible = false;
+                          atari.visible = false;
+                          hazure.visible = false;
+                          pose = 'shake_body';
+                          content = {status:'ガラガラ回し中' };
+
+                          setTimeout(() => {
+                              is_garagara_start = false;
+                              lottery();
+                          }, 5000);
+                      }
+                  } else {
+                      pose = call_args.pose;
+                  }
+              } else if (call_name === "sendMessageStaff") {
+                  sendSlackMessage(call_args.text);
+                  content = {status:'店長に伝言を送信しました' };
+              }
+
+              // 1. 各呼び出しに対するレスポンスを格納
+              toolResponses.push({
+                  id: call_id,
+                  response: { name: call_name, content: content } 
+              });
+          }
+
+          // 2. モデルに「ツール実行完了」を報告する（これをしないと詰まる）
+          const responseMsg = {
+              tool_response: { // tool_response (スネークケース)
+                  function_responses: toolResponses
+              }
+          };
+          ws.send(JSON.stringify(responseMsg));
+          console.log("Sent tool_response to Gemini");
+      }else if (data.serverContent && data.serverContent.interrupted){
+          console.log('interrupted');
+          // sound cancel
+          audioQueue.length = 0;
+          
+        }else{
+          console.log('Received:', data);
+        }
+    }
+
+    // テキストメッセージ送信
+    function sendSingleTextMessage(text) {
+      if(ws && ws.readyState === WebSocket.OPEN){
+        const msg = {
+          client_content: {
+            turns: [
+              {
+                role: 'user',
+                parts: [
+                  { text }
+                ]
+              }
+            ],
+            turn_complete: true
+          }
+        };
+        ws.send(JSON.stringify(msg));
+        console.log('Sent text message:', text);
+      }
+    }
+
+    // ★ リサンプリング関数（単純線形補間）
+    function resampleAudio(float32Data, inputRate, outputRate) {
+      if (inputRate === outputRate) {
+        // レートが同じなら何もしない
+        return float32Data;
+      }
+      const ratio = inputRate / outputRate;
+      const newLength = Math.round(float32Data.length / ratio);
+      const resampled = new Float32Array(newLength);
+      for (let i = 0; i < newLength; i++) {
+        // 線形補間
+        const index = i * ratio;
+        const low = Math.floor(index);
+        const high = Math.min(Math.ceil(index), float32Data.length - 1);
+        const weight = index - low;
+        resampled[i] = float32Data[low] * (1 - weight) + float32Data[high] * weight;
+      }
+      return resampled;
+    }
+
+    // ★ Float32 → Int16変換
+    function convertFloat32ToInt16(float32Array) {
+      const int16Array = new Int16Array(float32Array.length);
+      for (let i = 0; i < float32Array.length; i++) {
+        let s = float32Array[i];
+        // clamp
+        if (s > 1) s = 1;
+        if (s < -1) s = -1;
+        // 変換
+        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+      return int16Array;
+    }
+
+    // ★ Int16Array → Base64
+    function int16ArrayToBase64(int16Array) {
+      const byteArray = new Uint8Array(int16Array.buffer);
+      let binary = '';
+      for (let i = 0; i < byteArray.length; i++) {
+        binary += String.fromCharCode(byteArray[i]);
+      }
+      return btoa(binary);
+    }
+
+
+
+
+    function convertPCMToFloat32(buffer) {
+            const float32Data = new Float32Array(buffer.length / 2); // 16-bit PCMの場合
+            for (let i = 0; i < buffer.length; i += 2) {
+                const value = buffer[i] | (buffer[i + 1] << 8); // リトルエンディアンでデコード
+                float32Data[i / 2] = (value >= 0x8000 ? value - 0x10000 : value) / 32768; // Normalize to -1.0 to 1.0
+            }
+            return float32Data;
+        }
+
+        function queuePCMData(pcmData) {
+            audioQueue.push(pcmData);
+            if (!isPlaying) {
+                playPCMData(audioQueue.shift());
+            }
+        }
+
+        function playPCMData(pcmData) {
+            const audioBuffer = audioContext.createBuffer(1, pcmData.length, 24000); // 1チャンネル, サンプル数, サンプルレート
+            audioBuffer.copyToChannel(pcmData, 0);
+
+            const sourceNode = audioContext.createBufferSource();
+            sourceNode.buffer = audioBuffer;
+            sourceNode.connect(audioContext.destination);
+
+            sourceNode.onended = () => {
+                isPlaying = false; // 再生終了後にフラグをリセット
+                if (audioQueue.length > 0) {
+                    playPCMData(audioQueue.shift()); // 次のデータを再生
+                }
+            };
+
+            isPlaying = true;
+            sourceNode.start();
+        }
+
+
+
+
+
+
+
+        // 顔検出モデルの読み込み
+        var facefinder_classify_region = function(r, c, s, pixels, ldim) { return -1.0; };
+        var cascadeurl = './static/js/facefinder.dat';
+
+        fetch(cascadeurl)
+            .then(response => response.arrayBuffer())
+            .then(buffer => {
+                var bytes = new Int8Array(buffer);
+                facefinder_classify_region = pico.unpack_cascade(bytes);
+                console.log("* 顔検出モデルをロードしました");
+            })
+            .catch(err => console.error("モデルの読み込みに失敗:", err));
+
+        // Webカメラを起動（640×480 固定）
+        navigator.mediaDevices.getUserMedia({
+            video: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT }
+        })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => console.error("カメラにアクセスできません:", err));
+
+        function rgba_to_grayscale(rgba, nrows, ncols) {
+            var gray = new Uint8Array(nrows * ncols);
+            for (var r = 0; r < nrows; ++r)
+                for (var c = 0; c < ncols; ++c)
+                    gray[r * ncols + c] = (2 * rgba[r * 4 * ncols + 4 * c + 0] + 7 * rgba[r * 4 * ncols + 4 * c + 1] + 1 * rgba[r * 4 * ncols + 4 * c + 2]) / 10;
+            return gray;
+        }
+
+        function detectFace() {
+            if (!facefinder_classify_region || facefinder_classify_region.toString().includes("-1.0")) {
+                console.warn("顔検出モデルがまだロードされていません");
+                setTimeout(detectFace, 1000);
+                return;
+            }
+
+            ctx_video.drawImage(video, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+            let imageData = ctx_video.getImageData(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+            
+            let image = {
+                "pixels": rgba_to_grayscale(imageData.data, VIDEO_HEIGHT, VIDEO_WIDTH),
+                "nrows": VIDEO_HEIGHT,
+                "ncols": VIDEO_WIDTH,
+                "ldim": VIDEO_WIDTH
+            };
+
+            let params = {
+                "shiftfactor": 0.1,
+                "minsize": 20,
+                "maxsize": 300,
+                "scalefactor": 1.2
+            };
+
+            let dets = pico.run_cascade(image, facefinder_classify_region, params);
+            dets = pico.cluster_detections(dets, 0.2);
+
+            largestFace = null;
+
+            // === 最大の顔だけ取得 ===
+            for (let i = 0; i < dets.length; ++i) {
+                let [y, x, size, score] = dets[i];
+                if (score > 3.0 & size<300 & size>10) {
+                    if (!largestFace || size > largestFace.size) {
+                        largestFace = { x, y, size };
+                    }
+                }
+            }
+
+            if (largestFace && largestFace.size > 10) {
+              lastSoundActiveTime = performance.now();
+              if(pose=='sleep' & isAudioReady){
+                isActive = true;
+                pose='ojigi'
+                startWebSocket('挨拶して');
+              }
+            }
+
+            setTimeout(detectFace, 100);
+
+        }
+
+        video.addEventListener('loadeddata', () => {
+            detectFace();
+        });
+
+
+
+
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
