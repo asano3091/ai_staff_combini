@@ -850,7 +850,7 @@ function pose_home(){
 
       function render() {
         if(largestFace){
-          //camera.position.y += (-mouseY - camera.position.y) * .1;
+          camera.position.y += (-mouseY - camera.position.y) * .1;
           let diff_x = (largestFace.x - VIDEO_WIDTH/2. - camera.position.x) * .2;
           diff_x = Math.min(diff_x, 3);
           diff_x = Math.max(diff_x, -3);
