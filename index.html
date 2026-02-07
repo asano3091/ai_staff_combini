@@ -677,27 +677,28 @@
         pose_update();
 
         if (bones.length>0) {
-            let headBone = bones[3]
+            let headBone = bones[8];
 
-            // カメラの位置を取得して、頭部ボーンがカメラを向くように回転
-            const targetPosition = new THREE.Vector3();
-            camera.getWorldPosition(targetPosition);
+            const targetPosW = new THREE.Vector3();
+            camera.getWorldPosition(targetPosW);
 
-            // ローカルの方向ベクトルを取得
-            const headPosition = new THREE.Vector3();
-            headBone.getWorldPosition(headPosition);
+            const headPosW = new THREE.Vector3();
+            headBone.getWorldPosition(headPosW);
 
-            const direction = new THREE.Vector3().subVectors(targetPosition, headPosition).normalize();
+            // ワールド方向
+            const dirW = targetPosW.clone().sub(headPosW).normalize();
 
-            // 首の回転を分離して制御
-            const targetRotationX = Math.atan2(direction.y, direction.z);  // 上下の回転（x軸）
-            const targetRotationY = Math.atan2(direction.x, direction.z);  // 左右の回転（y軸）
+            // 親のローカルへ変換
+            const parentQW = new THREE.Quaternion();
+            headBone.parent.getWorldQuaternion(parentQW);
+            const dirL = dirW.clone().applyQuaternion(parentQW.invert()).normalize();
 
-            // x軸（上下）の回転を制限して適用
-            headBone.rotation.x = THREE.MathUtils.clamp(targetRotationX, -Math.PI / 6, Math.PI / 6);  // 上下の動きを制限
+            // -Z forward 前提
+            const yaw   = Math.atan2(dirL.x, -dirL.z) - Math.PI / 2;
+            const pitch = Math.atan2(dirL.y, Math.sqrt(dirL.x * dirL.x + dirL.z * dirL.z));
 
-            // y軸（左右）の回転をスムーズに適用
-            headBone.rotation.y = THREE.MathUtils.lerp(headBone.rotation.y, targetRotationY, 0.1);
+            //headBone.rotation.z = pitch;
+            //headBone.rotation.y = -yaw;
 
 
         }
