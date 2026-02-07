@@ -367,7 +367,7 @@
       const textureLoader = new THREE.TextureLoader();
       textureLoader.load('./static/Seven_eleven_logo.svg.png', function (texture) {
         // 平面ジオメトリの作成
-        const geometry = new THREE.PlaneGeometry(30*1.75, 15*1.75); // サイズを調整可能
+        const geometry = new THREE.PlaneGeometry(30*1.75, 30*1.75); // サイズを調整可能
         texture.colorSpace = THREE.SRGBColorSpace;
         const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
         const plane = new THREE.Mesh(geometry, material);
