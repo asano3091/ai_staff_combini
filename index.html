@@ -180,7 +180,7 @@
 
     <!-- Three.js本体とGLTFローダー -->
     <div id='canvas' style='display: flex;justify-content: center;'>
-        <div style="display: none;">
+        <div style="">
           <input style='top:20px;' type="button" value="home" id='home'>
           <input type="button" value="baibai" id='baibai'>
           <input style='top:100px;' type="button" value="ojigi" id='ojigi'>
@@ -240,7 +240,7 @@
         }
 
       
-      function sendSlackMessage(message, debug=false) {
+      function sendSlackMessage(message, debug=true) {
             const container = document.getElementById('notificationContainer');
 
             // 新しい通知を作成
@@ -252,11 +252,11 @@
             header.classList.add('notification-header');
 
             const icon = document.createElement('img');
-            icon.src = "./static/megutan.png"; // アイコン画像のURL
-            icon.alt = "AI Comビニ店員";
+            icon.src = "./static/poinko.png"; // アイコン画像のURL
+            icon.alt = "AI店員";
 
             const name = document.createElement('span');
-            name.innerText = "AI Comビニ店員  ➡︎  店長";
+            name.innerText = "AI店員  ➡︎  店長";
 
             header.appendChild(icon);
             header.appendChild(name);
@@ -293,7 +293,7 @@
         }
 
         // テスト用
-        setTimeout(() => sendSlackMessage('お客様が暖かいご飯を置いてほしいと言っています。', true), 2000);
+        setTimeout(() => sendSlackMessage('お客様がグミを増やしてほしいと言っています。', false), 2000);
         //setTimeout(() => sendSlackMessage('お客様が暖かいご飯を置いてほしいと言っています。'), 2000);
 
       let width = window.innerWidth ;
@@ -365,7 +365,7 @@
 
       // テクスチャの読み込み
       const textureLoader = new THREE.TextureLoader();
-      textureLoader.load('./static/combini_logo.png', function (texture) {
+      textureLoader.load('./static/Seven_eleven_logo.svg.png', function (texture) {
         // 平面ジオメトリの作成
         const geometry = new THREE.PlaneGeometry(30*1.75, 15*1.75); // サイズを調整可能
         texture.colorSpace = THREE.SRGBColorSpace;
@@ -484,7 +484,7 @@
       return group;
      }
 
-     var box1 = make_box([300, 70, 50], 0xdeb887);
+     var box1 = make_box([300, 70, 50], 0x404040);
      box1 .position.set(0,-45,90);
      scene.add(box1);
      var box1 = make_box([305, 5, 55], 0xf9f9f9);
@@ -594,7 +594,7 @@
       };
 
       // GLTFファイルを読み込む
-      const GLTFFILE = './static/gltf/megtan_v4_remesh.glb';
+      const GLTFFILE = './static/gltf/poinko.glb';
       const GLTFFILE_GARAGARA_A = './static/gltf/garagarapon_A.glb';
       const GLTFFILE_GARAGARA_B = './static/gltf/garagarapon_B.glb';
       const gltfLoader = new GLTFLoader()
@@ -607,8 +607,8 @@
       
       gltfLoader.load(GLTFFILE, (gltf) => {
         model = gltf.scene;
-        model.scale.set(80.0, 80.0, 80.0);
-        model.position.set(0, -80, 0);
+        //model.scale.set(80.0, 80.0, 80.0);
+        model.position.set(0, 50, -20);
         model.rotation.y = Math.PI;
 
         model.traverse((object) => { //モデルの構成要素をforEach的に走査
@@ -730,17 +730,29 @@
 
       var start_frame = 0;
 
-      function pose_home(){
+function pose_home(){
         bones[1].rotation.x = 0;
-        bones[4].rotation.z = Math.PI/2;
-        bones[4].rotation.y = 0;
-        bones[5].rotation.z = Math.PI/6.;
-        bones[5].rotation.x = 0;
-        bones[6].rotation.z = -Math.PI/2;
-        bones[6].rotation.y = 0;
-        bones[7].rotation.z = -Math.PI/6.;
-        bones[7].rotation.x = 0;
-        bones[1].rotation.z = 0;
+        bones[1].rotation.y = 0;
+        bones[1].rotation.z = 0; //spine_2
+        bones[2].rotation.x = -Math.PI/2; //left shoulder
+        bones[2].rotation.z = 0;
+        bones[2].rotation.y = 0;
+        bones[3].rotation.x = -Math.PI/3; //left_arm_1
+        bones[3].rotation.z = 0;
+        bones[4].rotation.x = -Math.PI/3;
+        bones[4].rotation.z = 0; //left_arm_2
+        //bones[4].rotation.y = Math.PI/2;
+        
+        bones[5].rotation.y = 0;
+        bones[5].rotation.z = -Math.PI; //right shoulder
+        bones[5].rotation.x = -Math.PI/2;
+        bones[6].rotation.z = 0; //right_arm_1
+        //bones[6].rotation.y = 0;
+        bones[6].rotation.x = -Math.PI/3;
+        bones[7].rotation.z = 0; //right_arm_2
+        bones[7].rotation.x = -Math.PI/3;
+        bones[8].rotation.z = 0;
+        //bones[1].rotation.z = 0;
         robot.rotation.y=0;
         zzz.visible=false;
       }
@@ -749,22 +761,35 @@
         if(pose == 'ojigi'){
           if(bones.length>0){
             pose_home();
-            bones[1].rotation.x = Math.sin((frame-start_frame)/20+Math.PI/2)/4.;
-            bones[4].rotation.y =  -Math.sin((frame-start_frame)/20-Math.PI/2)/4.-Math.PI/8.;
-            bones[5].rotation.x =  -Math.sin((frame-start_frame)/20-Math.PI/2)/4.-Math.PI/4.;
-            bones[6].rotation.y =  Math.sin((frame-start_frame)/20-Math.PI/2)/4.+Math.PI/8.;
-            bones[7].rotation.x =  -Math.sin((frame-start_frame)/20-Math.PI/2)/4.-Math.PI/4.;
+            bones[1].rotation.z = -Math.PI/8 + Math.sin((frame-start_frame)/20+Math.PI)/4. ;
+
+            bones[2].rotation.z = -Math.PI/6;
+            bones[2].rotation.y = Math.PI/7;
+            bones[3].rotation.x = -Math.PI/3;
+            bones[3].rotation.z =-Math.PI/3;
+            bones[4].rotation.x = 0;
+            bones[4].rotation.z = -Math.PI/2;
+
+            bones[5].rotation.z = Math.PI + Math.PI/6;
+            bones[5].rotation.y = Math.PI/7;
+            bones[6].rotation.x = Math.PI/3;
+            bones[6].rotation.z = Math.PI/3;
+            bones[7].rotation.x = 0;
+            bones[7].rotation.z = Math.PI/2;
           }
         }
         else if(pose == 'baibai'){
           if(bones.length>0){
             pose_home();
-            bones[4].rotation.z = Math.PI/2.5 + Math.sin((frame-start_frame)/20+Math.PI)/8.;
-            bones[5].rotation.z = Math.sin((frame-start_frame)/20+Math.PI)/4.;
-            bones[6].rotation.z = -(Math.PI/2.5 + Math.sin((frame-start_frame)/20+Math.PI)/8.);
-            bones[7].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            bones[1].rotation.x = Math.sin((frame-start_frame)/20+Math.PI)/8.; //spine_2
+            bones[5].rotation.x = -Math.PI/2-Math.sin((frame-start_frame)/20+Math.PI)/8.; //right shoulder
+            bones[6].rotation.x = Math.PI/3-Math.sin((frame-start_frame)/20+Math.PI)/4.; //right_arm_1
+            bones[7].rotation.x = -Math.sin((frame-start_frame)/20+Math.PI)/4.; //right arm_2
+            //bones[5].rotation.z = Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            //bones[6].rotation.z = -(Math.PI/2.5 + Math.sin((frame-start_frame)/20+Math.PI)/8.);
+            //bones[7].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
 
-            bones[1].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            //bones[1].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
           }
         }else if(pose == 'home'){
           if(bones.length>0){
@@ -776,19 +801,33 @@
           if(bones.length>0){
             pose_home();
             zzz.visible = true;
-            bones[1].rotation.x = Math.sin((frame-start_frame)/20+Math.PI/2)/6.+Math.PI/8.;
+            bones[8].rotation.z = Math.sin((frame-start_frame)/20+Math.PI/2)/6.-Math.PI/8.;
+            bones[2].rotation.x = -Math.PI/2-Math.PI/10;
+            bones[3].rotation.x = -Math.PI/8;
+            bones[4].rotation.x = 0;
+
+            bones[5].rotation.x = -Math.PI/2+Math.PI/10;
+            bones[6].rotation.x = -Math.PI/8;
+            bones[7].rotation.x = 0;
           }
         }
         else if(pose == 'shake_head'){
           if(bones.length>0){
             pose_home();
-            bones[0].rotation.y = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            bones[1].rotation.z = Math.sin((frame-start_frame)/20+Math.PI)/4.;
           }
         }
         else if(pose == 'shake_body'){
           if(bones.length>0){
             pose_home();
-            bones[1].rotation.z = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            bones[1].rotation.x = -Math.sin((frame-start_frame)/20+Math.PI)/4.;
+            bones[2].rotation.x = -Math.PI/2-Math.PI/10;
+            bones[3].rotation.x = -Math.PI/8;
+            bones[4].rotation.x = 0;
+
+            bones[5].rotation.x = -Math.PI/2+Math.PI/10;
+            bones[6].rotation.x = -Math.PI/8;
+            bones[7].rotation.x = 0;
           }
         }
         
@@ -805,7 +844,6 @@
 
 
       }
-
       // 描画開始
       animate();
 
@@ -818,8 +856,8 @@
           diff_x = Math.max(diff_x, -3);
           camera.position.x +=diff_x
         }else{
-          //camera.position.x += (mouseX - camera.position.x) * .001;
-          //camera.position.y += (-mouseY - camera.position.y) * .1;
+          camera.position.x += (mouseX - camera.position.x) * .1;
+          camera.position.y += (-mouseY - camera.position.y) * .1;
 
       
 
